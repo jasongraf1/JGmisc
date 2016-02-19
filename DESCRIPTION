@@ -1,11 +1,11 @@
 Package: JGmisc
 Type: Package
-Title: Data sets, functions, and markdown templates developed by me.
+Title: Miscellaneous R functions.
 Version: 0.1
 Date: 2016-02-17
 Author: Jason Grafmiller
-Maintainer: Who to complain to <jason.grafmiller@kuleuven.be>
-Description: rovides extended functionality for ggplot2, lme4, and MCMCglmm models, as well as some functions for basic statistics and data manipulation. Also provides custom r markdown templates for Word, LaTeX, and HTML documents.
-Depends: ggplot2
-License: What license is it under?
+Maintainer: Jason Grafmiller <jason.grafmiller@kuleuven.be>
+Description: Provides extended functionality for ggplot2, lme4, and MCMCglmm models, as well as some functions for basic statistics and data manipulation. 
+Depends: ggplot2, lme4, MCMCglmm
+License: GPL-2
 LazyData: TRUE

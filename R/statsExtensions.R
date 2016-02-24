@@ -92,12 +92,12 @@ c. <- function(x, center = NULL) {
 			m <- matrix(nrow = nrow(x), ncol = ncol(x))
 			colnames(m) <- paste("c.", colnames(x), sep = "")
 			for (i in 1:ncol(x)) {
-				m[,i] = x[,i] - mean(x[,i])
+				m[,i] <- as.numeric(x[,i]) - mean(as.numeric(x[,i]))
 			}
 			return(as.data.frame(m))
 		}
 		else {
-			x = as.numeric(x)
+			x <- as.numeric(x)
 			return(x - mean(x, na.rm = T))
 		}
 	}
@@ -107,7 +107,7 @@ c. <- function(x, center = NULL) {
 				m <- matrix(nrow = nrow(x), ncol = ncol(x))
 				colnames(m) <- paste("c.", colnames(x), sep = "")
 				for (i in 1:ncol(x)) {
-					m[,i] <- x[,i] - eval(center(x[,i]))
+					m[,i] <- as.numeric(x[,i]) - eval(center(as.numeric(x[,i])))
 				}
 				return(as.data.frame(m))
 			}
@@ -124,12 +124,12 @@ c. <- function(x, center = NULL) {
 			m <- matrix(nrow = nrow(x), ncol = ncol(x))
 			colnames(m) <- paste("c.", colnames(x), sep = "")
 			for (i in 1:ncol(x)) {
-				m[,i] = x[,i] - center
+				m[,i] = as.numeric(x[,i]) - center
 			}
 			return(as.data.frame(m))
 		}
 			else {
-				x = as.numeric(x)
+				x <- as.numeric(x)
 				return(x - center)
 			}
 		}

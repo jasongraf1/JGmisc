@@ -361,31 +361,29 @@ ggLogit.plot <- function (x, data, method = "cut",
 
 
 
-ggMCMChist.plot <- function(mcmc, resp = NULL, fill.col = NULL, line.col = "black",
-		scales = "fixed", bin.width = NULL, add.line = T, alpha.h = 1, alpha.d = .2,
-		fill.d = "blue"){
+ggMCMChist.plot <- function(mcmc, resp = NULL, fill.col = "lightgray", line.col = "black",
+														scales = "fixed", bin.width = NULL, add.line = T, 
+														alpha.h = 1, alpha.d = .2,
+														fill.d = "blue"){
 	require(ggplot2)
 	require(reshape2)
 	require(coda)
-
+	
 	# for HPD intervals
 	hpd <- apply(mcmc, 2, function(x) as.vector(HPDinterval(as.mcmc(x), prob=0.95)))
 	hpd <- rbind(apply(mcmc, 2, mean), hpd)
 	rownames(hpd) <- c("mean", "upper", "lower")
 	hpd <- data.frame(t(hpd))
 	hpd$variable <- rownames(hpd)
-
+	
 	if (is.null(resp)) resp <- 'outcome'
-
+	
 	#dmax <- floor(max(apply(data, 2, function(x) max(density(x)$y))) * .1)
-
+	
 	mdata <- suppressMessages(melt(as.data.frame(mcmc)))
-
+	
 	if (is.null(bin.width)){
 		bin.width <- (max(mdata$value) - min(mdata$value))/40
-	}
-	if (is.null(fill.col)) {
-		fill.col <- "lightgray" # set default fill color
 	}
 	if (line.col == F) {
 		line.col <- fill.col # set default line color to match fill color
@@ -399,7 +397,7 @@ ggMCMChist.plot <- function(mcmc, resp = NULL, fill.col = NULL, line.col = "blac
 		p <- p + geom_density()
 	}
 	else if (add.line){
-		p <- p + geom_density(alpha = alpha.d, fill = fill.d)
+		p <- p + geom_density(alpha = .2, fill = fill.d)
 	}
 	p <- p + geom_segment(data = hpd, inherit.aes = FALSE,
 												aes(x = lower, xend = upper,
@@ -411,7 +409,7 @@ ggMCMChist.plot <- function(mcmc, resp = NULL, fill.col = NULL, line.col = "blac
 
 
 # create trace plots of MCMCglmm objects with ggplot2
-ggMCMCtrace.plot <- function(mcmc, color = NULL, ncol = NULL){
+ggMCMCtrace.plot <- function(mcmc, color = "darkblue", ncol = NULL){
 	md <- suppressMessages(melt(as.data.frame(mcmc)))
 	md$run <- rep(1:nrow(mcmc), ncol(mcmc))
 	nlevs <- length(levels(md$variable))
@@ -420,9 +418,9 @@ ggMCMCtrace.plot <- function(mcmc, color = NULL, ncol = NULL){
 		else if (nlevs/3 <= 3 & nlevs/3 > 1.5) ncol <- 3
 		else ncol <- 4
 	}
-	p <- ggplot(md, aes(x = run)) +
+	p <- ggplot(md, aes(x = run, y = value)) +
 		facet_wrap(~ variable, ncol = ncol, scales = "free") +
-		geom_line(aes(y = value), color = color) +
+		geom_line(color = color) +
 		labs(x = "", y = "")
 	return (p)
 }

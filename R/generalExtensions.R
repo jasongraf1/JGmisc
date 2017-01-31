@@ -27,12 +27,18 @@ detachAllPackages <- function(keep = NULL, keep.basic = TRUE) {
 
 
 filter.infrequent <- function(words, threshold = 5, dummy = "OTHER") {
-	# code from WBRS for recoding infrequent factor levels (default is <= 5
-	# observations)
-	return (relevel(
-		as.factor(
-			ifelse(words %in% levels(as.factor(words))[table(words) >= threshold],
-						 as.character(words), dummy)), dummy))
+  # code from WBRS for recoding infrequent factor levels (default is <= 5
+  # observations)
+  if (min(table(words)) > threshold){
+    return (words)
+  }
+  else {
+    return (ifelse(words %in% levels(as.factor(words))[table(words) >= threshold],
+             as.character(words), dummy) %>%
+            factor %>%
+            relevel(ref = dummy)
+          )
+  }
 }
 
 
@@ -113,6 +119,23 @@ join2 <- function (strings, sep = "", finalSep = NULL){
 }
 
 
+make.data.subsets <- function(data, variable, name = NULL){
+  var_string <- substitute(variable) %>% deparse
+  df_list <- list()
+  levs <- as.factor(data[, variable]) %>% levels
+  for (i in 1:length(levs)){
+    df_list[[i]] <- droplevels(subset(data, variable == levs[i]))
+    if (is.null(name)){
+    	names(df_list)[i] <- levs[i]
+    }
+    else{
+    	names(df_list)[i] <- paste0(name, levs[i])
+    }
+  }
+  return(df_list)
+}
+
+
 my.library <- function(packages){
 	invisible(sapply(packages, silent.load))
 }
@@ -126,6 +149,7 @@ notify <- function(x = NULL){
 	else { system(paste('CMD /C "ECHO ', x, ' && PAUSE"'),
 					invisible=FALSE, wait=FALSE) }
 }
+
 
 rm.func <- function (){
 	rm(list = ls()[sapply(ls(), function(n){is.function(get(n))})])
@@ -141,5 +165,7 @@ silent.load <- function(a.package){
 	suppressWarnings(suppressPackageStartupMessages(
 		library(a.package, character.only = TRUE)))
 }
+
+
 
 #############################################################################

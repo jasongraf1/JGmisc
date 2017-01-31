@@ -1,8 +1,8 @@
-\name{vif.mer}
-\alias{vif.mer}
+\name{VIF.mer}
+\alias{VIF.mer}
 \title{Variance Inflation Factors for mixed effects models}
 \usage{
-vif.mer(fit
+VIF.mer(fit
 }
 
 \description{

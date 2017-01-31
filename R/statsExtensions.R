@@ -97,7 +97,7 @@ c. <- function(x, center = NULL) {
 			return(as.data.frame(m))
 		}
 		else {
-			x <- as.numeric(x)
+			x = as.numeric(x)
 			return(x - mean(x, na.rm = T))
 		}
 	}
@@ -107,7 +107,7 @@ c. <- function(x, center = NULL) {
 				m <- matrix(nrow = nrow(x), ncol = ncol(x))
 				colnames(m) <- paste("c.", colnames(x), sep = "")
 				for (i in 1:ncol(x)) {
-					m[,i] <- as.numeric(x[,i]) - eval(center(as.numeric(x[,i])))
+					m[,i] <- x[,i] - eval(center(x[,i]))
 				}
 				return(as.data.frame(m))
 			}
@@ -124,12 +124,12 @@ c. <- function(x, center = NULL) {
 			m <- matrix(nrow = nrow(x), ncol = ncol(x))
 			colnames(m) <- paste("c.", colnames(x), sep = "")
 			for (i in 1:ncol(x)) {
-				m[,i] = as.numeric(x[,i]) - center
+				m[,i] = x[,i] - center
 			}
 			return(as.data.frame(m))
 		}
 			else {
-				x <- as.numeric(x)
+				x = as.numeric(x)
 				return(x - center)
 			}
 		}
@@ -210,6 +210,7 @@ z. <- function(x, center = NULL, factor = 1) {
 
 cohens.d = function(x, y){
 	# calculate cohen's d effect size
+	dname <- paste(deparse(substitute(x)), deparse(substitute(y)))
 	n1 = length(x)
 	n2 = length(y)
 	m1 = mean(x)
@@ -218,8 +219,16 @@ cohens.d = function(x, y){
 	s2 = sd(y)
 	ss.var = ((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2)
 	d = abs(m1-m2)/sqrt(ss.var)
-	print(paste("Cohen's d: ", signif(d,3)))
-	return(list(m1 = m1, m2 = m2, ss.variance = ss.var, d = d))
+	eff.size <- list(m1 = m1, m2 = m2, ss.variance = ss.var, d = d)
+	cat(paste0("\n\tCohen's d measure of effect size\n\n",
+		'd: ', signif(d, 3), '\n',
+		'data: ', dname, '\n',
+		'm1 = ', round(m1, 2), '\tm2 = ', round(m2, 2), '\n',
+		'sd1 = ', round(s1, 2), '\tsd2 = ', round(s2, 2), '\n',
+		'pooled variance: ', round(ss.var, 3),'\n\n')
+		)
+
+	return(invisible(eff.size))
 }
 
 
@@ -239,124 +248,125 @@ cramers.V <- function(tab){
 
 # function for g test of independence (likelihood ratio test) to replace chisq
 # from -- https://stat.ethz.ch/pipermail/r-help/2001-September/015290.html
-g.test <- function(x, y = NULL, correct="none", p = rep(1/length(x), length(x)))
-{
-	DNAME <- deparse(substitute(x))
-	if (is.data.frame(x)) x <- as.matrix(x)
-	if (is.matrix(x)) {
-		if (min(dim(x)) == 1)
-			x <- as.vector(x)
-	}
-	if (!is.matrix(x) && !is.null(y)) {
-		if (length(x) != length(y))
-			stop("x and y must have the same length")
-		DNAME <- paste(DNAME, "and", deparse(substitute(y)))
-		OK <- complete.cases(x, y)
-		x <- as.factor(x[OK])
-		y <- as.factor(y[OK])
-		if ((nlevels(x) < 2) || (nlevels(y) < 2))
-			stop("x and y must have at least 2 levels")
-		x <- table(x, y)
-	}
-	if (any(x < 0) || any(is.na(x)))
-		stop("all entries of x must be nonnegative and finite")
-	if ((n <- sum(x)) == 0)
-		stop("at least one entry of x must be positive")
-	#If x is matrix, do test of independence
-	if (is.matrix(x)) {
-		#this block was the separate g.stat function
-		cell.tot <- row.tot <- col.tot <- grand.tot <- 0
-		nrows<-nrow(x)
-		ncols<-ncol(x)
-		if (correct=="yates"){ # Do Yates' correction
-			if(dim(x)[1]!=2 || dim(x)[2]!=2) # check for 2x2 matrix
-				stop("Yates' correction requires a 2 x 2 matrix")
-			if((x[1,1]*x[2,2])-(x[1,2]*x[2,1]) > 0)
-			{
-				x[1,1] <- x[1,1] - 0.5
-				x[2,2] <- x[2,2] - 0.5
-				x[1,2] <- x[1,2] + 0.5
-				x[2,1] <- x[2,1] + 0.5
-			}
-			else
-			{
-				x[1,1] <- x[1,1] + 0.5
-				x[2,2] <- x[2,2] + 0.5
-				x[1,2] <- x[1,2] - 0.5
-				x[2,1] <- x[2,1] - 0.5
-			}
-		}
-		# calculate G (Zar, 2000)
-		for (i in 1:nrows){
-			for (j in 1:ncols){
-				if (x[i,j] != 0) cell.tot <- cell.tot + x[i,j] * log10(x[i,j])
-			}
-		}
-		for (i in 1:nrows){ row.tot <- row.tot + (sum(x[i,])) * log10(sum(x[i,])) }
-		for (j in 1:ncols){ col.tot <- col.tot + (sum(x[,j])) * log10(sum(x[,j])) }
-		grand.tot <- sum(x)*log10(sum(x))
-		total <- cell.tot - row.tot - col.tot + grand.tot
-		G <- 4.60517 * total
-		q <- 1
-		if (correct=="williams"){ # Do Williams' correction
-			row.tot <- col.tot <- 0
-			for (i in 1:nrows){ row.tot <- row.tot + 1/(sum(x[i,])) }
-			for (j in 1:ncols){ col.tot <- col.tot + 1/(sum(x[,j])) }
-			q <- 1+ ((n*row.tot-1)*(n*col.tot-1))/(6*n*(ncols-1)*(nrows-1))
-		}
-		G <- (G/q)
-		# end of old g.stat function
-
-		STATISTIC <- G
-		PARAMETER <- (nrow(x)-1)*(ncol(x)-1)
-		PVAL <- 1-pchisq(STATISTIC,df=PARAMETER)
-		if(correct=="none")
-			METHOD <- "Log likelihood ratio (G-test) test of independence without correction"
-		if(correct=="williams")
-			METHOD <- "Log likelihood ratio (G-test) test of independence with Williams' correction"
-		if(correct=="yates")
-			METHOD <- "Log likelihood ratio (G-test) test of independence with Yates' correction"
-	}
-	else {
-		# x is not a matrix, so we do Goodness of Fit
-		METHOD <- "Log likelihood ratio (G-test) goodness of fit test"
-		if (length(x) == 1)
-			stop("x must at least have 2 elements")
-		if (length(x) != length(p))
-			stop("x and p must have the same number of elements")
-		E <- n * p
-
-		if (correct=="yates"){ # Do Yates' correction
-			if(length(x)!=2)
-				stop("Yates' correction requires 2 data values")
-			if ( (x[1]-E[1]) > 0.25) {
-				x[1] <- x[1]-0.5
-				x[2] <- x[2]+0.5
-			}
-			else if ( (E[1]-x[1]) > 0.25){
-				x[1] <- x[1]+0.5
-				x[2] <- x[2]-0.5
-			}
-		}
-		names(E) <- names(x)
-		tot <- 0
-		for (i in 1:length(x)){
-			if (x[i] != 0) tot <- tot + x[i] * log(x[i]/E[i])
-		}
-		G <- (2*tot)
-		if (correct=="williams"){ # Do Williams' correction
-			q <- 1+(length(x)+1)/(6*n)
-			G <- (G/q)
-		}
-		STATISTIC <- (G)
-		PARAMETER <- length(x) - 1
-		PVAL <- pchisq(STATISTIC, PARAMETER, lower = FALSE)
-	}
-	names(STATISTIC) <- "Log likelihood ratio statistic (G)"
-	names(PARAMETER) <- "X-squared df"
-	names(PVAL) <- "p.vlaue"
-	structure(list(statistic=STATISTIC,parameter=PARAMETER,p.value=PVAL,
-								 method=METHOD,data.name=DNAME),class="htest")
-}
+# g.test <- function(x, y = NULL, correct="none",
+# 									 p = rep(1/length(x), length(x)))
+# {
+# 	DNAME <- deparse(substitute(x))
+# 	if (is.data.frame(x)) x <- as.matrix(x)
+# 	if (is.matrix(x)) {
+# 		if (min(dim(x)) == 1)
+# 			x <- as.vector(x)
+# 	}
+# 	if (!is.matrix(x) && !is.null(y)) {
+# 		if (length(x) != length(y))
+# 			stop("x and y must have the same length")
+# 		DNAME <- paste(DNAME, "and", deparse(substitute(y)))
+# 		OK <- complete.cases(x, y)
+# 		x <- as.factor(x[OK])
+# 		y <- as.factor(y[OK])
+# 		if ((nlevels(x) < 2) || (nlevels(y) < 2))
+# 			stop("x and y must have at least 2 levels")
+# 		x <- table(x, y)
+# 	}
+# 	if (any(x < 0) || any(is.na(x)))
+# 		stop("all entries of x must be nonnegative and finite")
+# 	if ((n <- sum(x)) == 0)
+# 		stop("at least one entry of x must be positive")
+# 	#If x is matrix, do test of independence
+# 	if (is.matrix(x)) {
+# 		#this block was the separate g.stat function
+# 		cell.tot <- row.tot <- col.tot <- grand.tot <- 0
+# 		nrows<-nrow(x)
+# 		ncols<-ncol(x)
+# 		if (correct=="yates"){ # Do Yates' correction
+# 			if(dim(x)[1]!=2 || dim(x)[2]!=2) # check for 2x2 matrix
+# 				stop("Yates' correction requires a 2 x 2 matrix")
+# 			if((x[1,1]*x[2,2])-(x[1,2]*x[2,1]) > 0)
+# 			{
+# 				x[1,1] <- x[1,1] - 0.5
+# 				x[2,2] <- x[2,2] - 0.5
+# 				x[1,2] <- x[1,2] + 0.5
+# 				x[2,1] <- x[2,1] + 0.5
+# 			}
+# 			else
+# 			{
+# 				x[1,1] <- x[1,1] + 0.5
+# 				x[2,2] <- x[2,2] + 0.5
+# 				x[1,2] <- x[1,2] - 0.5
+# 				x[2,1] <- x[2,1] - 0.5
+# 			}
+# 		}
+# 		# calculate G (Zar, 2000)
+# 		for (i in 1:nrows){
+# 			for (j in 1:ncols){
+# 				if (x[i,j] != 0) cell.tot <- cell.tot + x[i,j] * log10(x[i,j])
+# 			}
+# 		}
+# 		for (i in 1:nrows){ row.tot <- row.tot + (sum(x[i,])) * log10(sum(x[i,])) }
+# 		for (j in 1:ncols){ col.tot <- col.tot + (sum(x[,j])) * log10(sum(x[,j])) }
+# 		grand.tot <- sum(x)*log10(sum(x))
+# 		total <- cell.tot - row.tot - col.tot + grand.tot
+# 		G <- 4.60517 * total
+# 		q <- 1
+# 		if (correct=="williams"){ # Do Williams' correction
+# 			row.tot <- col.tot <- 0
+# 			for (i in 1:nrows){ row.tot <- row.tot + 1/(sum(x[i,])) }
+# 			for (j in 1:ncols){ col.tot <- col.tot + 1/(sum(x[,j])) }
+# 			q <- 1+ ((n*row.tot-1)*(n*col.tot-1))/(6*n*(ncols-1)*(nrows-1))
+# 		}
+# 		G <- (G/q)
+# 		# end of old g.stat function
+#
+# 		STATISTIC <- G
+# 		PARAMETER <- (nrow(x)-1)*(ncol(x)-1)
+# 		PVAL <- 1-pchisq(STATISTIC,df=PARAMETER)
+# 		if(correct=="none")
+# 			METHOD <- "Log likelihood ratio (G-test) test of independence without correction"
+# 		if(correct=="williams")
+# 			METHOD <- "Log likelihood ratio (G-test) test of independence with Williams' correction"
+# 		if(correct=="yates")
+# 			METHOD <- "Log likelihood ratio (G-test) test of independence with Yates' correction"
+# 	}
+# 	else {
+# 		# x is not a matrix, so we do Goodness of Fit
+# 		METHOD <- "Log likelihood ratio (G-test) goodness of fit test"
+# 		if (length(x) == 1)
+# 			stop("x must at least have 2 elements")
+# 		if (length(x) != length(p))
+# 			stop("x and p must have the same number of elements")
+# 		E <- n * p
+#
+# 		if (correct=="yates"){ # Do Yates' correction
+# 			if(length(x)!=2)
+# 				stop("Yates' correction requires 2 data values")
+# 			if ( (x[1]-E[1]) > 0.25) {
+# 				x[1] <- x[1]-0.5
+# 				x[2] <- x[2]+0.5
+# 			}
+# 			else if ( (E[1]-x[1]) > 0.25){
+# 				x[1] <- x[1]+0.5
+# 				x[2] <- x[2]-0.5
+# 			}
+# 		}
+# 		names(E) <- names(x)
+# 		tot <- 0
+# 		for (i in 1:length(x)){
+# 			if (x[i] != 0) tot <- tot + x[i] * log(x[i]/E[i])
+# 		}
+# 		G <- (2*tot)
+# 		if (correct=="williams"){ # Do Williams' correction
+# 			q <- 1+(length(x)+1)/(6*n)
+# 			G <- (G/q)
+# 		}
+# 		STATISTIC <- (G)
+# 		PARAMETER <- length(x) - 1
+# 		PVAL <- pchisq(STATISTIC, PARAMETER, lower = FALSE)
+# 	}
+# 	names(STATISTIC) <- "Log likelihood ratio statistic (G)"
+# 	names(PARAMETER) <- "X-squared df"
+# 	names(PVAL) <- "p.vlaue"
+# 	structure(list(statistic=STATISTIC,parameter=PARAMETER,p.value=PVAL,
+# 								 method=METHOD,data.name=DNAME),class="htest")
+# }
 
 #############################################################################

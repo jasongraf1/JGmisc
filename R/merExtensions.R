@@ -7,7 +7,7 @@
 # Aug 04, 2015
 #############################################################################
 
-aic.table <- function(fit){
+aic.varimp <- function(fit, random = NULL){
 	# function for calculating the differences in AIC with predictors removed
 	require(MuMIn, quietly = T) # add MuMIn for calculating conditional AIC
 	if (class(fit) == "lmerMod" || class(fit) == "glmerMod"){
@@ -21,7 +21,7 @@ aic.table <- function(fit){
 	full.aic <- AICc(fit)
 	mod.aic <- c()
 
-	print("variables run:")
+	cat("variables run:\n")
 
 	# loop through (fixed effects) predictors
 	for (i in seq(1, length(vars))){
@@ -173,6 +173,109 @@ overdisp.mer <- function(model) {
 	prat <- Pearson.chisq/rdf
 	pval <- pchisq(Pearson.chisq, df = rdf, lower.tail = FALSE)
 	c(chisq = Pearson.chisq, ratio = prat, rdf = rdf, p = pval)
+}
+
+
+permute.varimp <- function(fit, data, verbose = F){
+  require(lme4, quietly = T)
+  require(Hmisc, quietly = T)
+  require(MuMIn, quietly = T)
+  # Want this to work with glm and glmer models...
+  if (class(fit) == "lmerMod" || class(fit) == "glmerMod"){
+    random <- names(ranef(fit))
+    vars <- colnames(attr(attr(fit@frame, "terms"), "factors"))
+    y <- fit@resp$y
+    # only fixed effs
+    # vars <- strsplit(toString(attr(attr(fit@frame, "terms"),
+    #															 "predvars.fixed")), ', ')[[1]][-c(1:2)]
+  }
+  else if (class(fit)[1] == "lrm"){
+    vars <- colnames(attr(f.lrm$terms, "factors"))
+    y <- as.numeric(fit$y) - 1
+  }
+  else {
+    vars <- colnames(attr(attr(fit$model, "terms"), "factors"))
+    y <- fit$y
+  }
+  # remove interaction terms
+  vars <- vars[grep(":", vars, invert = T)]
+
+  # get predictions from full model
+  full.probs <- predict(fit, type = "response")
+  full.C <- somers2(full.probs, y)[[1]]
+  full.acc <- mean(round(full.probs) == y)
+  full.AICc <- MuMIn::AICc(fit)
+
+  varimp_mat <- matrix(nrow = length(vars), ncol = 3)
+  if (verbose) cat("variables run:\n")
+  # loop through (fixed effects) predictors
+  for (i in seq(1, length(vars))){
+    # find main effect and any interactions
+    d <- data
+    d[, vars[i]] <- sample(data[, vars[i]])
+    new_fit <- update(fit, data = d)
+    new.probs <- predict(new_fit, type = "response")
+    if (class(fit) == "lmerMod" || class(fit) == "glmerMod"){
+      new_y <- new_fit@resp$y
+    }
+    else {
+      new_y <- new_fit$y
+    }
+    new.C <- somers2(new.probs, new_y)[[1]]
+    C.diff <- full.C - new.C
+    new.acc <- mean(round(new.probs) == new_y)
+    Acc.diff <- full.acc - new.acc
+    new.AICc <- MuMIn::AICc(new_fit)
+    AICc.diff <- new.AICc - full.AICc
+    varimp_mat[i, ] <- c(C.diff, Acc.diff, AICc.diff)
+    if (verbose) cat(vars[i], "... ", sep = "")
+  }
+  rownames(varimp_mat) <- vars
+  colnames(varimp_mat) <- c("C", "accuracy", "AICc")
+  return(as.data.frame(varimp_mat))
+}
+
+
+ranef.disp <- function(fit){
+	require(gridExtra)
+	r <- ranef(fit)
+	plist <- list()
+	for(i in 1:length(r)){
+		lab <- names(r)[i]
+		d <- r[[i]]
+		cols <- gsub("(\\(|\\))", "", names(d), perl = T)
+		names(d) <- cols
+		print(cols)
+		if (length(cols) > 1){
+			for (j in 1:length(cols)){
+				p <- ggQQ.plot(d, cols[j]) +
+					ggtitle(paste0(lab, ":", cols[j]))
+				plist <- append(plist, list(p))
+			}
+		}
+		else {
+			p <- ggQQ.plot(d, cols) + ggtitle(lab)
+			plist <- append(plist, list(p))
+			print(i)
+		}
+	}
+	do.call("grid.arrange", c(plist, ncol = 2))
+}
+
+
+scores.mer <- function(fit){
+  probs <- predict(fit, type = "response")
+  y = getME(fit, "y")
+  # AUC and Dxy
+  C <- Hmisc::somers2(probs, y)[1]
+  Dxy <- Hmisc::somers2(probs, y)[2]
+  # log-loss (- average log-likelihood)
+  LL <- - mean(y*log(d$probs) + (1 - y)*log(1 - d$probs))
+  # accuacies
+  resp <- levels(gen_glmm@frame[,1])
+  d.1 <- subset(d, Response == resp[1])
+  d.2 <- subset(d, Response == resp[2])
+
 }
 
 

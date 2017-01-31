@@ -1,12 +1,12 @@
-\name{aic.table}
+\name{aic.varimp}
 \alias{aic.table}
 \title{Calculate the differences in model AIC with predictors removed}
 \usage{
-aic.table(x)
+aic.varimp(x)
 }
 
 \description{
-Calculate the differences in model AIC between a full model and models with each individual predictor removed.  
+Calculate variable importance based on the differences in model AIC between a full model and models with each individual predictor removed.  
 }
 
 \arguments{
@@ -14,7 +14,7 @@ Calculate the differences in model AIC between a full model and models with each
 }
 
 \details{
-Calculate the differences in model AIC between a full model and models with each individual predictor removed.  
+Calculate the differences in model AIC between a full model and models with each individual predictor removed. \emph{This function is now superceded by} \code{\link{permute.varimp}}. 
 }
 
 \value{
@@ -27,7 +27,7 @@ A dataframe with 3 columns and \emph{k} rows, where \emph{k} is the number of in
 \author{J. Grafmiller}
 
 \seealso{
-\code{\link{AIC}} and \code{\link{AICc}} in \code{\link{MuMIn}}
+\code{\link{AIC}} and \code{\link{AICc}} in \code{\link{MuMIn}}; \code{\link{permute.varimp}}
 }
 
 \references{

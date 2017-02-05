@@ -1,9 +1,9 @@
 #############################################################################
 # Functions for numerical transformations and other statistics
-# v 0.1
+# v 0.3
 #
 # Jason Grafmiller
-# Aug 04, 2015
+# 05 Feb, 2017
 #############################################################################
 
 
@@ -61,7 +61,7 @@ my.sum.table <- function(tab, d = 2, rnd = 1) { # needs work...
 		rtotal = interleave.v(margins[nrow(margins),], rep("", ncol(tab)))
 		mat[nrow(mat),] = rtotal
 	}
-	print(mat, quote = F)
+	return (mat)
 }
 
 

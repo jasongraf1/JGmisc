@@ -1,10 +1,10 @@
 #############################################################################
 #
 # Some general useful functions for working in R
-# v 0.1
+# v 0.3
 #
 # Jason Grafmiller
-# Aug 04, 2015
+# 05 Feb 2017
 #############################################################################
 
 detachAllPackages <- function(keep = NULL, keep.basic = TRUE) {

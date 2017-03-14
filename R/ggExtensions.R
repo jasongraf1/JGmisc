@@ -77,7 +77,8 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 	# create barplot of proportions with counts superimposed over plots
 	# allows for faceting by 1 or 2 groups entered as character vector
 
-	# e.g. library(langaugeR);
+	# e.g.
+	# library(languageR);
 	#	ggBar.plot(dative, PronomOfTheme, RealizationOfRecipient, facet = "Modality")
 
 	require(ggplot2)
@@ -97,7 +98,7 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 	xlevs <- length(levels(data[, xvar]))
 	ylevs <- length(levels(data[, yvar]))
 	if(opp.cols) {
-		ycols <- c("white", rep("black", ylevs - 1))
+		ycols <- c("black", rep("white", ylevs - 1))
 	}
 	else ycols <- rep("black", ylevs)
 
@@ -581,7 +582,7 @@ ggMosaic.plot <- function(data, x, y, myscale = 1, ...){
 
 
 ggPredictor.plot <- function(data, response, vars,
-														 size = 4, color = "black",
+														 size = 4, text.col = "black",
 														 hjust = 1.1){
 	require(ggplot2)
 	require(reshape2)
@@ -618,7 +619,7 @@ ggPredictor.plot <- function(data, response, vars,
 						 aes(value, fill = variable)) +
 		annotate("text", x = 1:length(levels(dt$value)),
 						 y = propY, label = propLabel, size = 4,
-						 hjust = 1.1) +
+						 hjust = 1.1, color = text.col) +
 		coord_flip()
 	return(p)
 }
@@ -644,6 +645,27 @@ ggQQ.plot <- function (data, var) {
 	p <- ggplot(data, aes_string(sample = v)) + stat_qq() +
 		geom_abline(slope = slope, intercept = int) +
 		labs(title="Normal Q-Q plot")
+	return(p)
+}
+
+
+ggResidMer.plot <- function(model, id = 5, type = "pearson"){
+	require(ggplot2)
+	require(lme4)
+	if (!class(model) %in% c("merMod", "glmerMod")){
+		stop(paste("Error: Object", model, "must be of class 'merMod' or 'glmerMod'!"))
+	}
+
+	d <- data.frame(fits = fitted(model),
+									resids = resid(model, type = type)
+	)
+	d_pt <- subset(d, abs(resids) < id)
+	d_id <- subset(d, abs(resids) >= id)
+	p <- ggplot(d, aes(fits, resids)) +
+		geom_hline(yintercept = 0) +
+		geom_point(data = d_pt, color = "blue", alpha = .5) +
+		geom_text(data = d_id, label = rownames(d_id)) +
+		labs(x = "Fits (predicted probs)", y = "Standardized residuals")
 	return(p)
 }
 

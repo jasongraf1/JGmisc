@@ -66,16 +66,12 @@ my.sum.table <- function(tab, d = 2, rnd = 1) { # needs work...
 
 
 se <- function (x, na.rm = FALSE) {
-	# computing standard error, parallel to sd()
-	# 'x' is a vector (or matrix) of numerical values
+	to.num <- function(x) as.numeric(as.character(x))
 	if (is.matrix(x)){
-		apply(x, 2, sd, na.rm = na.rm)/sqrt(apply(x, 2, length))}
-	else if (is.vector(x)){
-		x <- as.numeric(x)
-		sd(x, na.rm = na.rm)/sqrt(length(x))}
+		apply(x, 2, FUN = function(v) sd(to.num(v), na.rm = na.rm))/sqrt(apply(x, 2, length))}
 	else if (is.data.frame(x)){
-		sapply(x, sd, na.rm = na.rm)/sqrt(sapply(x, length))}
-	else sd(as.numeric(x), na.rm = na.rm)/sqrt(length(as.numeric(x)))
+		sapply(x, FUN = function(v) sd(to.num(v), na.rm = na.rm))/sqrt(sapply(x, length))}
+	else sd(to.num(x), na.rm = na.rm)/sqrt(length(x))
 }
 
 

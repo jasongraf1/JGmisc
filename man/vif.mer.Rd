@@ -17,7 +17,7 @@ Computes variance inflation factors from the covariance matrix of parameter esti
 A sorted vector of vifs. 
 }
 
-\author{Jason Grafmiller}
+\author{F. Harrell, J. Grafmiller}
 
 \seealso{
 \code{\link{rms::vif}, \link{lmer}, \link{rmsMisc}}

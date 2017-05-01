@@ -5,7 +5,12 @@
 #
 # Jason Grafmiller
 # 05 Feb 2017
-#############################################################################
+############################################################################
+
+require(plyr)
+require(dplyr)
+require(reshape2)
+require(magrittr)
 
 detachAllPackages <- function(keep = NULL, keep.basic = TRUE) {
 	# function for detaching all attached packages (except basic ones)

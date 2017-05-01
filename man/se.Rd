@@ -10,7 +10,7 @@ This function computes the standard error of the values in x. If \code{na.rm} is
 }
 
 \arguments{
-\item{x}{ a numeric vector or an R object which is coercible to one by \code{as.vector(x, "numeric")}. }
+\item{x}{ a numeric vector or an R object which is coercible to one by \code{as.vector(x, "numeric")}. Can also be a matirx or data frame, in which case, the standard error is calculated fro each column. }
 \item{na.rm}{ logical. Should missing values be removed? }
 }
 

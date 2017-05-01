@@ -265,13 +265,13 @@ ranef.disp <- function(fit){
 
 scores.mer <- function(fit){
   probs <- predict(fit, type = "response")
-  y = getME(fit, "y")
+  y <- getME(fit, "y")
   # AUC and Dxy
   C <- Hmisc::somers2(probs, y)[1]
   Dxy <- Hmisc::somers2(probs, y)[2]
   # log-loss (- average log-likelihood)
   LL <- - mean(y*log(d$probs) + (1 - y)*log(1 - d$probs))
-  # accuacies
+  # accuracies
   resp <- levels(gen_glmm@frame[,1])
   d.1 <- subset(d, Response == resp[1])
   d.2 <- subset(d, Response == resp[2])

@@ -73,7 +73,8 @@ ggAssoc.plot = function (data, x, y) {
 
 ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 											 facet.cols = NULL, scales = "fixed",
-											 width = 0.7, size = 5, opp.cols = FALSE){
+											 width = 0.7, size = 5, opp.cols = FALSE,
+											 horiz = F){
 	# create barplot of proportions with counts superimposed over plots
 	# allows for faceting by 1 or 2 groups entered as character vector
 
@@ -85,22 +86,19 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 	require(plyr)
   if (is.character(x)) {
     xvar <- x
-  }
-  else{
+  } else{
     xvar <- deparse(substitute(x))
   }
   if (is.character(y)) {
     yvar <- y
-  }
-  else{
+  } else{
     yvar <- deparse(substitute(y))
   }
 	xlevs <- length(levels(data[, xvar]))
 	ylevs <- length(levels(data[, yvar]))
 	if(opp.cols) {
 		ycols <- c("black", rep("white", ylevs - 1))
-	}
-	else ycols <- rep("black", ylevs)
+	} else ycols <- rep("black", ylevs)
 
 	if (!is.null(facet)){
 		if (length(facet) > 1){
@@ -124,7 +122,7 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 				facet_grid(as.formula(paste(fvar1, "~", fvar2)),
 									 scales = scales)
 		}
-		else{
+		else {
 			#fvar <- deparse(substitute(facet))
 			fvar <- facet
 			flevs <- length(levels(data[, fvar]))
@@ -161,6 +159,9 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 	}
 	else {
 		p <- p + labs(x = "", y = "proportion of tokens")
+	}
+	if (horiz){
+		p <- p +coord_flip()
 	}
 	return(p)
 }
@@ -643,8 +644,7 @@ ggQQ.plot <- function (data, var) {
 	slope <- diff(y)/diff(x)
 	int <- y[1L] - slope * x[1L]
 	p <- ggplot(data, aes_string(sample = v)) + stat_qq() +
-		geom_abline(slope = slope, intercept = int) +
-		labs(title="Normal Q-Q plot")
+		geom_abline(slope = slope, intercept = int)
 	return(p)
 }
 
@@ -655,7 +655,6 @@ ggResidMer.plot <- function(model, id = 5, type = "pearson"){
 	if (!class(model) %in% c("merMod", "glmerMod")){
 		stop(paste("Error: Object", model, "must be of class 'merMod' or 'glmerMod'!"))
 	}
-
 	d <- data.frame(fits = fitted(model),
 									resids = resid(model, type = type)
 	)
@@ -667,6 +666,23 @@ ggResidMer.plot <- function(model, id = 5, type = "pearson"){
 		geom_text(data = d_id, label = rownames(d_id)) +
 		labs(x = "Fits (predicted probs)", y = "Standardized residuals")
 	return(p)
+}
+
+
+ggVarimp.plot <- function(v, type = c("dot", "bar"),
+													dot.col = "black", fill.col = "gray80"){
+	dt <- data.frame(predictor = names(sort(v)),
+									 varimp = sort(v))
+	dt$predictor <- factor(dt$predictor, levels = dt$predictor)
+	p <- ggplot(dt, aes(predictor, varimp)) + coord_flip() +
+		geom_hline(yintercept = 0) +
+		labs(x = "", y = "permutation variable importance")
+	if (type == "bar"){
+		p <- p + geom_bar(stat = "identity", fill = fill.col)
+	} else {
+		p <- p + geom_point(color = dot.col)
+	}
+	return (p)
 }
 
 

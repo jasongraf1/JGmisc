@@ -5,7 +5,7 @@
 ggResidMer.plot(model, id = 5, type = "pearson")
 }
 \description{
-Create bar plot of counts for each level of a set of predictor variables. Bars are colored by a binary response, and percentages of first level of response are superimposed onto the bars. 
+Plot the standardized residuals  
 }
 \arguments{
 \item{model}{ a model of class \code(merMod} or \code{glmerMod} }

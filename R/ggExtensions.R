@@ -451,7 +451,7 @@ ggMCMChist.plot <- function(data,
 
 	#dmax <- floor(max(apply(data, 2, function(x) max(density(x)$y))) * .1)
 
-	mdata <- suppressMessages(melt(as.data.frame(data)))
+	mdata <- suppressMessages(reshape2::melt(as.data.frame(data)))
 
 	if (is.null(bin.width)){
 		bin.width <- (max(mdata$value) - min(mdata$value))/40
@@ -483,7 +483,7 @@ ggMCMChist.plot <- function(data,
 
 
 ggMCMCtrace.plot <- function(data, color = NULL, ncol = NULL){
-	md <- suppressMessages(melt(as.data.frame(data)))
+	md <- suppressMessages(reshape2::melt(as.data.frame(data)))
 	md$run <- rep(1:nrow(data), ncol(data))
 	nlevs <- length(levels(md$variable))
 	if(is.null(ncol)){

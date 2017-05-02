@@ -6,6 +6,16 @@ Date: 2017-01-27
 Author: Jason Grafmiller
 Maintainer: Jason Grafmiller <jason.grafmiller@kuleuven.be>
 Description: Provides extended functionality for ggplot2, lme4, and MCMCglmm models, as well as some functions for basic statistics and data manipulation. 
-Depends: ggplot2, lme4, MCMCglmm
+Depends: 
+	ggplot2, 
+	lme4, 
+	magrittr,
+	MCMCglmm
+Imports:
+	ape,
+	coda,
+	MuMIn,
+	plyr,
+	reshape2
 License: GPL-2
 LazyData: TRUE

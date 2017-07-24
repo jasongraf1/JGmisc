@@ -5,7 +5,7 @@
 #
 # Jason Grafmiller
 # Aug 04, 2015
-# Last updated: Jan 27, 2017
+# Last updated: July 24, 2017
 #
 #############################################################################
 
@@ -16,9 +16,12 @@
 
 ggAssoc.plot = function (data, x, y) {
 	# function for creating association plots with ggplot2
-
+	
 	require(ggplot2, quietly = T)
-
+	
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	xvar <- deparse(substitute(x))
 	yvar <- deparse(substitute(y))
 
@@ -71,10 +74,9 @@ ggAssoc.plot = function (data, x, y) {
 }
 
 
-ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
-											 facet.cols = NULL, scales = "fixed",
-											 width = 0.7, size = 5, opp.cols = FALSE,
-											 horiz = F){
+ggBar.plot <- function(data, x, y, facet = NULL, percent = T, 
+	facet.cols = NULL, scales = "fixed",
+	width = 0.7, size = 5, opp.cols = FALSE, horiz = F){
 	# create barplot of proportions with counts superimposed over plots
 	# allows for faceting by 1 or 2 groups entered as character vector
 
@@ -84,16 +86,17 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 
 	require(ggplot2)
 	require(plyr)
-  if (is.character(x)) {
-    xvar <- x
-  } else{
-    xvar <- deparse(substitute(x))
-  }
-  if (is.character(y)) {
-    yvar <- y
-  } else{
-    yvar <- deparse(substitute(y))
-  }
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+  	if (is.character(x)) {
+    	xvar <- x
+  	} else{
+    	xvar <- deparse(substitute(x))
+  	}
+  	if (is.character(y)) {
+    	yvar <- y
+  	} else{
+    	yvar <- deparse(substitute(y))}
 	xlevs <- length(levels(data[, xvar]))
 	ylevs <- length(levels(data[, yvar]))
 	if(opp.cols) {
@@ -121,8 +124,7 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 									color = rep(ycols, xlevs), size = size) +
 				facet_grid(as.formula(paste(fvar1, "~", fvar2)),
 									 scales = scales)
-		}
-		else {
+		} else {
 			#fvar <- deparse(substitute(facet))
 			fvar <- facet
 			flevs <- length(levels(data[, fvar]))
@@ -137,10 +139,8 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 								 stat = "identity", width = width, col = "black") +
 				geom_text(aes(label = Freq, y = pos), col = rep(ycols, xlevs*flevs), size = size) +
 				facet_wrap(as.formula(paste("~", fvar)),
-									 ncol = facet.cols, scales = scales)
-		}
-	}
-	else{
+									 ncol = facet.cols, scales = scales)}
+	} else{
 		mydata <- data[, c(xvar, yvar)]
 		mytable <- table(mydata)
 		d <- as.data.frame(mytable)
@@ -150,34 +150,32 @@ ggBar.plot <- function(data, x, y, facet = NULL, percent = T,
 			geom_bar(aes_string(fill = yvar),
 							 stat = "identity", width = .7, color = "black") +
 			geom_text(aes(label = Freq, y = pos),
-								color = rep(ycols, xlevs), size = size)
-	}
+								color = rep(ycols, xlevs), size = size)}
+	
 	if (percent){
 		p <- p + scale_y_continuous(breaks = seq(0, 1, .25),
-																labels = paste("%", seq(0,100,25), sep = "")) +
+			labels = paste("%", seq(0,100,25), sep = "")) +
 			labs(x = "", y = "percentage of tokens")
-	}
-	else {
-		p <- p + labs(x = "", y = "proportion of tokens")
-	}
-	if (horiz){
-		p <- p +coord_flip()
-	}
+	} else {
+		p <- p + labs(x = "", y = "proportion of tokens")}
+	
+	if (horiz) p <- p +coord_flip()
 	return(p)
 }
 
 
 ggBox.plot <- function(data, x, y, facet = NULL, fill.col = NULL,
-											 facet.cols = NULL, notch = TRUE, scales = "fixed",
-											 width = 0.7){
+	facet.cols = NULL, notch = TRUE, scales = "fixed", width = 0.7){
 	# create barplot of proportions with counts superimposed over plots
 	# allows for faceting by 1 or 2 groups entered as character vector
 
 	# e.g. ggBox.plot(chickwts, feed, weight, notch = F)
-
+	
 	require(ggplot2)
 	require(plyr)
-
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
   if (is.character(x)) {
     xvar <- x
   }
@@ -233,6 +231,9 @@ ggBox.plot <- function(data, x, y, facet = NULL, fill.col = NULL,
 ggCD.plot <- function(fmla, data, add.label = TRUE,
 											ylevs = 2:1, text.col = "black"){
 	require(ggplot2)
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
   if (!plyr::is.formula(fmla)){
     stop("First argument must be a formula...")
   }
@@ -272,6 +273,9 @@ ggDensity.plot <- function(data, xvar, facet = NULL, as.hist = FALSE,
 
 	require(ggplot2)
 	#xvar <- deparse(substitute(x))
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	if (is.character(xvar)) {
 	  xvar <- xvar
 	}
@@ -342,7 +346,10 @@ ggLogit.plot <- function (x, data, method = "cut",
 	require(rms, quietly = TRUE)
 	require(MuMIn, quietly = TRUE)
 	require(ggplot2, quietly = TRUE)
-
+	
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	# e.g. library(languageR);
 	# m <- glm(RealizationOfRecipient ~ PronomOfTheme + LengthOfRecipient, data = dative, family = binomial)
 	# ggLogit.plot(m, data = dative)
@@ -503,6 +510,9 @@ ggMCMCtrace.plot <- function(data, color = NULL, ncol = NULL){
 ggMosaic.plot <- function(data, x, y, myscale = 1, ...){
 	# 2 dimensional mosaic plot for ggplot2
 	# still needs some work....
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	xvar <- deparse(substitute(x))
 	yvar <- deparse(substitute(y))
 	xlevs <- length(levels(data[, xvar]))
@@ -588,7 +598,9 @@ ggPredictor.plot <- function(data, response, vars,
 	require(ggplot2)
 	require(reshape2)
 	require(magrittr)
-
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	if (is.character(response)) resp <- response
 	else resp <- deparse(substitute(response))
 
@@ -631,7 +643,9 @@ ggQQ.plot <- function (data, var) {
 	# var is a numeric vector
 	# following four lines from base R's qqline()
 	require(ggplot2)
-
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	#e.g. ggQQ.plot(mtcars, wt)
 	if (is.character(var)){
 	  v <- var
@@ -670,7 +684,8 @@ ggResidMer.plot <- function(model, id = 5, type = "pearson"){
 
 
 ggVarimp.plot <- function(v, type = c("dot", "bar"),
-													dot.col = "black", fill.col = "gray80"){
+	dot.col = "black", fill.col = "gray80"){
+	
 	dt <- data.frame(predictor = names(sort(v)),
 									 varimp = sort(v))
 	dt$predictor <- factor(dt$predictor, levels = dt$predictor)
@@ -687,12 +702,14 @@ ggVarimp.plot <- function(v, type = c("dot", "bar"),
 
 
 ggViolin.plot <- function(data, x, y, facet = NULL, fill.col = NULL,
-													facet.cols = NULL, scales = "fixed", CI = .5){
+	facet.cols = NULL, scales = "fixed", CI = .5){
 	# create barplot of proportions with counts superimposed over plots
 	# allows for faceting by 1 or 2 groups entered as character vector
 	require(ggplot2)
 	require(plyr)
-
+	# for comaptibility with tidyverse...
+	data <- as.data.frame(data)
+	
 	#e.g. ggViolin.plot(chickwts, feed, weight)
 
   if (class(x) == 'character') {
@@ -751,10 +768,8 @@ ggViolin.plot <- function(data, x, y, facet = NULL, fill.col = NULL,
 }
 
 
-grid.share.legend <- function(...,
-															ncol = length(list(...)),
-															nrow = 1,
-															position = c("bottom", "right")) {
+grid.share.legend <- function(..., ncol = length(list(...)),
+	nrow = 1, position = c("bottom", "right")) {
 	# See: https://github.com/tidyverse/ggplot2/wiki/Share-a-legend-between-two-ggplot2-graphs
 	require(grid)
 	require(gridExtra)
@@ -768,14 +783,14 @@ grid.share.legend <- function(...,
 	gl <- c(gl, ncol = ncol, nrow = nrow)
 
 	combined <- switch(position,
-										 "bottom" = arrangeGrob(do.call(arrangeGrob, gl),
-										 											 legend,
-										 											 ncol = 1,
-										 											 heights = unit.c(unit(1, "npc") - lheight, lheight)),
-										 "right" = arrangeGrob(do.call(arrangeGrob, gl),
-										 											legend,
-										 											ncol = 2,
-										 											widths = unit.c(unit(1, "npc") - lwidth, lwidth)))
+		"bottom" = arrangeGrob(do.call(arrangeGrob, gl),
+		legend,
+		ncol = 1,
+		heights = unit.c(unit(1, "npc") - lheight, lheight)),
+		"right" = arrangeGrob(do.call(arrangeGrob, gl),
+			legend,
+			ncol = 2,
+			widths = unit.c(unit(1, "npc") - lwidth, lwidth)))
 	# grid.newpage()
 	grid.draw(combined)
 }

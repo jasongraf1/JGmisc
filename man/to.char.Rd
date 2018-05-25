@@ -2,11 +2,11 @@
 \alias{to.char}
 \title{Convert columns to character vectors}
 \usage{
-to.factor(df, factors.only = TRUE)
+to.char(df, factors.only = TRUE)
 }
 
 \description{
-Loops through columns in dataframe and coerces them to type \code{"character"}.  
+Loops through columns in dataframe and coerces them to type \code{"character"}.
 }
 
 \arguments{

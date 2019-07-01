@@ -6,7 +6,7 @@ head.tail(x, n = 6L)
 }
 
 \description{
-Print the first and last N rows of a dataframe  
+Print the first and last N rows of a dataframe
 }
 
 \arguments{
@@ -15,7 +15,7 @@ Print the first and last N rows of a dataframe
 }
 \author{Jason Grafmiller}
 \details{
-For matrices, 2-dim tables and data frames, returns the first  and last \code{n} rows when \code{n >= 0} or all but the last and first \code{n} rows when \code{n < 0}. 
+For matrices, 2-dim tables and data frames, returns the first  and last \code{n} rows when \code{n >= 0} or all but the last and first \code{n} rows when \code{n < 0}.
 }
 
 \value{
@@ -27,9 +27,5 @@ An object (usually) like x but generally smaller.
 }
 
 \examples{
-df <- iris
-summary(df)
-
-df <- to.char(df)
-summary(df)
+head.tail(mtcars)
 }

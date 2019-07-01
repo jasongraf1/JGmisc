@@ -1,4 +1,5 @@
-detachAllPackages <- function(keep = NULL, keep.basic = TRUE) {
+detachAllPackages <- function(keep = NULL, keep.basic = TRUE, unload = FALSE,
+                              force = FALSE) {
 	# function for detaching all attached packages (except basic ones)
 	basic.packages <- c("package:stats","package:graphics","package:grDevices",
 											"package:utils","package:datasets","package:methods",
@@ -12,6 +13,6 @@ detachAllPackages <- function(keep = NULL, keep.basic = TRUE) {
 		package.list <- setdiff(package.list, basic.packages)
 	}
 	if (length(package.list) > 0) {
-		for (package in package.list) detach(package, character.only = TRUE)
+		for (package in package.list) detach(package, character.only = TRUE, unload = unload)
 	}
 }

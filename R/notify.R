@@ -1,8 +1,17 @@
 notify <- function(x = NULL){
-	if (is.null(x)){
-		system('CMD /C "ECHO The R process has finished running && PAUSE"',
-					 invisible=FALSE, wait=FALSE)
+  if (is.null(x)){
+    msg <- 'CMD /C "ECHO The R process has finished running && PAUSE"'
+    if (Sys.info()[1] == "Windows"){
+      windDialog(message = msg)
+    } else {
+      system(msg, invisible = FALSE, wait = FALSE)
+      }
 	} else {
-		system(paste('CMD /C "ECHO ', x, ' && PAUSE"'),
-					 invisible=FALSE, wait=FALSE) }
-}
+	  msg <- paste('CMD /C "ECHO ', x, ' && PAUSE"')
+	  if (Sys.info()[1] == "Windows"){
+	    windDialog(message = msg)
+	  } else {
+	    system(msg, invisible = FALSE, wait = FALSE)
+	  }
+	  }}
+

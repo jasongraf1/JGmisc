@@ -1,16 +1,16 @@
-notify <- function(x = NULL){
-  if (is.null(x)){
-    msg <- 'CMD /C "ECHO The R process has finished running && PAUSE"'
+notify <- function(message = NULL){
+  if (is.null(message)){
     if (Sys.info()[1] == "Windows"){
-      winDialog(message = msg)
+      winDialog(message = "The R process has finished running.")
     } else {
+      msg <- paste('CMD /C "ECHO The R process has finished running. && PAUSE"')
       system(msg, invisible = FALSE, wait = FALSE)
       }
 	} else {
-	  msg <- paste('CMD /C "ECHO ', x, ' && PAUSE"')
 	  if (Sys.info()[1] == "Windows"){
-	    windDialog(message = msg)
+	    winDialog(message = message)
 	  } else {
+	    msg <- paste('CMD /C "ECHO ', message, ' && PAUSE"')
 	    system(msg, invisible = FALSE, wait = FALSE)
 	  }
 	  }}

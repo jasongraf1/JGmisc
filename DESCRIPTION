@@ -1,7 +1,7 @@
 Package: JGmisc
 Type: Package
 Title: Miscellaneous R functions.
-Version: 0.3.0
+Version: 0.5.0
 Date: 2018-05-25
 Author: Jason Grafmiller
 Maintainer: Jason Grafmiller <j.grafmiller@bham.ac.uk>

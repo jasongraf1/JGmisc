@@ -1,15 +1,11 @@
 Package: JGmisc
 Type: Package
 Title: Miscellaneous R functions.
-Version: 0.3
+Version: 0.3.0
 Date: 2018-05-25
 Author: Jason Grafmiller
 Maintainer: Jason Grafmiller <j.grafmiller@bham.ac.uk>
 Description: Provides some custom functions for basic statistics and data manipulation. 
-Depends: 
-	magrittr
-Imports:
-	plyr,
-	reshape2
 License: GPL-2
 LazyData: TRUE
+RoxygenNote: 6.1.1
